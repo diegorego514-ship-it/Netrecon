@@ -1,4 +1,4 @@
-import nmap3
+import nmap
 import ipaddress
 import sys
 import socket
@@ -6,8 +6,8 @@ import socket
 class NetRecon:
     def __init__(self):
         try:
-            self.nm = nmap3.PortScanner()
-        except nmap3.PortScannerError:
+            self.nm = nmap.PortScanner()
+        except nmap.PortScannerError:
             print('Error: nmap binary not found. Please install nmap')
             sys.exit(1)
         except Exception as e:
