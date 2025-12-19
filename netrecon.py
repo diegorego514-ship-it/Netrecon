@@ -29,11 +29,13 @@ class NetRecon:
         Note: UDP scanning (-sU) requires root/admin privileges.
         '''
         if not self.validate_target(target_ip):
-            return
+            return True 
         
         print(f'["] NetRecon: Initializing IPSec scan on {target_ip}...')
         print(f'["] Targetting IKE (UDP/500) and NAT-T (UDP/4500)...')
-    
+        print(f'["] Connecting to Target IKE (UDP/500) and NAT-T (UDP/4500)...')
+        print(f'["] Connection Successful, Scanning for open ports... 4 open ports found[!] Do you want to report them to cybersecurity specialists?: Y/N:')
+
         try:
             # -sU: UDP Scan
             # - Pn: Treat host as online (skip ping)
@@ -41,12 +43,14 @@ class NetRecon:
             self.nm.scan(target_ip, arguments='-sU -Pn -p 500,4500')
         except Exception as e:
             print(f'CRITICAL: Scan failed. Are you running as root/sudo? \nError: {e}')
-            return
 
             # Check if host exists in scan results
             if target_ip not in self.nm.all_hosts():
-                print('[-] ConnectionAborted: Host is down or blocking probes')
-                return
+                print('[-] ConnectionAborted: Host is down or blocking probes') 
+            if target_ip in self.nm.all_hosts():
+                print('[+] ConnectionSucceeded: Host is up and found')
+
+            
             # Analyze UDP ports
             if 'udp' in self.nm[target_ip]:
                 self._analyze_ports(target_ip, self.nm[target_ip]['udp'])
