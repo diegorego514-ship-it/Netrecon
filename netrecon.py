@@ -3,38 +3,44 @@ import ipaddress
 import sys
 import socket
 
-class NetRecon:
-    def __init__(self):
-        try:
-            self.nm = nmap.PortScanner()
-        except nmap.PortScannerError:
-            print('Error: nmap binary not found. Please install nmap')
-            sys.exit(1)
-        except Exception as e:
-            print(f'Unexpected error: {e}')
-            sys.exit(1)
+def NetRecon():
+
+    def target_ip():
+
+        def target_vulnerabilities():
+
+            def target_vulnerabilities():
     
-    def validate_target(self, target_ip):
-        '''Ensures the IP address is valid before scanning'''
-        try:
-            ipaddress.ip_address(target_ip)
-            return True
-        except ValueError:
-            print(f'Error: {target_ip} is not a valid IP address.')
-            return False
-    
+                def self():
+
+                    def target_ip():
+                        class NetRecon:
+                            def __init__(self):
+                    try:
+                        self.nm = nmap.PortScanner()
+                    except nmap.PortScannerError:
+                        print('Error: nmap binary not found. Please install nmap')
+                        sys.exit(1)
+                        self.nm = nmap.PortScanner()
+                        nmap.PortScannerError
+                        print(f'Unexpected error: {'e'}')
+                        sys.exit(1)
+                    def validate_target(self, target_ip):
+                        '''Ensures the IP address is valid before scanning'''
+                ipaddress.ip_address(target_ip)
+                
     def scan_ipsec(self, target_ip):
         '''
         Scans specific IPSec ports (UDP 500, 4500).
         Note: UDP scanning (-sU) requires root/admin privileges.
         '''
         if not self.validate_target(target_ip):
-            return True 
+            return False
         
         print(f'["] NetRecon: Initializing IPSec scan on {target_ip}...')
         print(f'["] Targetting IKE (UDP/500) and NAT-T (UDP/4500)...')
         print(f'["] Connecting to Target IKE (UDP/500) and NAT-T (UDP/4500)...')
-        print(f'["] Connection Successful, Scanning for open ports... 4 open ports found[!] Do you want to report them to cybersecurity specialists?: Y/N:')
+
 
         try:
             # -sU: UDP Scan
@@ -77,12 +83,49 @@ class NetRecon:
             else:
                 print('\n[-] Target does not appear to have active IPSec endpoints.')
 
+
+
+
+    def recon_scan_ipsec(target_vulnerabilities):
+            
+        def recon_scan_ipsec(vulnerabilities):
+            class NetRecon:
+                def __init__(self):
+                    try:
+                        self.nr = NetRecon.VulnerabilityScanner()
+                    except NetRecon.VulnerabilityScannerError:
+                        print(f'Error: NetRecon binary not found. Please install NetRecon')
+                    sys.exit(1)
+                    print(f'Unexpected Error: {'e'} ')
+                    sys.exit(1)
+                
+                def validate_target_vulnerabilities(self, target_vulnerabilities):
+                    '''
+                    Ensures that the vulnerabilities are not exploited before overlooking into it
+                    Note: Note that the scan might pick up said vulnerabilities and therefore by triggering the antivirus programs.
+                    '''
+                try:
+                    vulnerabilities = target(target_vulnerabilities)
+
+                except ValueError:
+                    print(f'Error: {Target_Vulnerability} is not a valid vulnerability')
+
+                def scan_ip_sec(self, Target_Vulnerability):
+                    '''
+                    Scans IPSec Ports for latest vulnerabilities in 2025.
+                    Note: Vulnerabilities have been more difficult to be handled over and have been increasingly scary.
+                    '''
+                    if not self.validate_target_vulnerabilities():
+                        return False
+
 # --- Execution ---
-if __name__ == '__main__':
-    print('--- NetRecon v1.0 (IPSec Edition) ---')
+                if __name__ == '__main__':
+                    print('--- NetRecon v1.0 (IPSec Edition) ---')
 
     # Replace this with your actual target IP
     target = '192.168.1.1'
 
+
     recon = NetRecon()
     recon.scan_ipsec(target)
+    recon.scan_ipsec(target_ip)    
