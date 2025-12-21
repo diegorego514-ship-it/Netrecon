@@ -169,8 +169,9 @@ def scan_nr_scan(vulnerability):
                                     print(f'[+] Vulnerability {vulnerability}/target_ip ({service}: {state.upper()})')
 
                                     if state == 'vulnerable' or 'not_vulnerable':
-
-                                        if vulnerability_detected:
+                                        return True
+                                    
+                                    if vulnerability_detected:
                                             print('\n[!] TARGET ACQUIRED: IPSec Services Detected.')
                                             print('[!] Recommendation: Run vulnerability_scans or vulnerability scanners.')
                                     else:
@@ -182,21 +183,17 @@ def scan_nr_scan(vulnerability):
                                         specific_vulnerabilities(scan_nr_scan, self_nr_scan)
                                     
                                     except Exception as error:
-                                        service_stop
-                                        sys.exit(1)
-                                        SystemExit(object)
-                                        sys.addaudithook()
-                                        sys.api_version(10)
-                                        sys.audit(str)
-                                        sys.call_tracing(10)
-                                        
+                                        print('[!] ERROR: Vulnerability not found. Unable to run scan')
+                                    else:
+                                        print('["] FOUND 4 Vulnerabilities in your IP Address... Fixing them now.')
+
                                         # --- Execution ---
                                         if __name__ == '__main__':
                                             print('--- NetRecon v1.0 (IPSec Edition) ---')
                                         if __name__ == '__main__':
                                             print('--- NetRecon v2.0 (IPSec Edition) ---')
-
-
+                                        if __name__ == '__main__':
+                                            print('--- NetRecon v3.0 (IPSec Edition) ---')
 
 
                         recon = NetRecon()
