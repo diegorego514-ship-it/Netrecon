@@ -110,9 +110,9 @@ def scan_nr_scan(vulnerability):
                     '''
                 try:
             
-                
                     def target():
-                        vulnerabilities = target(target_vulnerabilities)
+                        def target():    
+                            vulnerabilities = target(target_vulnerabilities)
 
                 except ValueError:
                 
@@ -159,31 +159,49 @@ def scan_nr_scan(vulnerability):
                         '''Internal method to interpret scan results.'''
                         ipsec_detected = False 
                     
+                    def service_stop():
 
-                    def vulnerability_detected():
-                        for vulnerability in [500, 4500]:
-                            if vulnerability in vulnerabilities:
-                                state = vulnerabilities[vulnerability['state']]
-                                service = vulnerabilities[vulnerability['name']]
-                                print(f'[+] Vulnerability {vulnerability}/target_ip ({service}: {state.upper()})')
+                        def vulnerability_detected():
+                            for vulnerability in [500, 4500]:
+                                if vulnerability in vulnerabilities:
+                                    state = vulnerabilities[vulnerability['state']]
+                                    service = vulnerabilities[vulnerability['name']]
+                                    print(f'[+] Vulnerability {vulnerability}/target_ip ({service}: {state.upper()})')
 
-                                if state == 'vulnerable' or 'not_vulnerable':
+                                    if state == 'vulnerable' or 'not_vulnerable':
 
-                                    if vulnerability_detected:
-                                        print('\n[!] TARGET ACQUIRED: IPSec Services Detected.')
-                                        print('[!] Recommendation: Run vulnerability_scans or vulnerability scanners.')
+                                        if vulnerability_detected:
+                                            print('\n[!] TARGET ACQUIRED: IPSec Services Detected.')
+                                            print('[!] Recommendation: Run vulnerability_scans or vulnerability scanners.')
                                     else:
-                                        print('\n[-] target does not seem to have vulnerabilies or compromised endpoints')
+                                            print('\n[-] target does not seem to have vulnerabilies or compromised endpoints')
 
-                    # --- Execution ---
-                        if __name__ == '__main__':
-                            print('--- NetRecon v1.0 (IPSec Edition) ---')
-                        if __name__ == '__main__':
-                            print('--- NetRecon v2.0 (IPSec Edition) ---')
+                                    try:
+                                        self_nr_scan(vulnerability_detected, recon_scan_ipsec)
+                                        vulnerability_detected(self_nr_scan, scan_nr_scan)
+                                        specific_vulnerabilities(scan_nr_scan, self_nr_scan)
+                                    
+                                    except Exception as error:
+                                        service_stop
+                                        sys.exit(1)
+                                        SystemExit(object)
+                                        sys.addaudithook()
+                                        sys.api_version(10)
+                                        sys.audit(str)
+                                        sys.call_tracing(10)
+                                        
+                                        # --- Execution ---
+                                        if __name__ == '__main__':
+                                            print('--- NetRecon v1.0 (IPSec Edition) ---')
+                                        if __name__ == '__main__':
+                                            print('--- NetRecon v2.0 (IPSec Edition) ---')
+
+
+
 
                         recon = NetRecon()
                         recon_scan_ipsec(target)
                         recon_scan_ipsec(target_vulnerabilities)
 
-    # Replace this with your actual target IP
-            target = '192.168.1.1'
+                        # Replace this with your actual target IP
+                        target = '192.168.1.1'
