@@ -185,7 +185,7 @@ def scan_nr_scan(vulnerability):
                                     except Exception as error:
                                         print('[!] ERROR: Vulnerability not found. Unable to run scan')
                                     else:
-                                        print('["] FOUND 4 Vulnerabilities in your IP Address... Fixing them now.')
+                                        print('[!] FOUND 4 Vulnerabilities in your IP Address... Fixing them now.')
 
                                         # --- Execution ---
                                         if __name__ == '__main__':
