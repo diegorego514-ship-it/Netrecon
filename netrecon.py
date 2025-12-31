@@ -1,202 +1,172 @@
-import nmap
-import ipaddress
-import sys
-import socket
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <errno.h>
+#include <time.h>
 
-def scan_nr_scan(vulnerability):
+#define IPSEC_PORT_1 500
+#define IPSEC_PORT_2 4500
+#define MAX_TARGETS 100
 
-    def NetRecon():
+typedef struct {
+    char ip[INET6_ADDRSTRLEN];
+    int port_500_open;
+    int port_4500_open;
+    char service_name[50];
+} ScanResult;
 
-       def recon_scan_ipsec(target_ip):
+typedef struct {
+    ScanResult results[MAX_TARGETS];
+    int count;
+} ScanReport;
 
-            def target_vulnerabilities():
+// Function prototypes
+int validate_ip_address(const char *ip);
+int check_port_udp(const char *ip, int port);
+void scan_ipsec_ports(const char *ip, ScanResult *result);
+void save_report(const ScanReport *report, const char *filename);
+void print_report(const ScanReport *report);
 
-                def target_vulnerabilities():
+int main(int argc, char *argv[]) {
+    printf("=== NetRecon v1.2 (Final Fixed Edition) ===\n\n");
     
-                    def self():
+    if (argc < 2) {
+        printf("Usage: %s <target_ip>\n", argv[0]);
+        printf("Usage: %s -f <filename> (for batch scanning)\n", argv[0]);
+        return 1;
+    }
 
-                        def target_vulnerability():
+    if (geteuid() != 0) {
+        printf("[!] Warning: Running without root privileges. UDP accuracy may be reduced.\n\n");
+    }
 
-                                def target_ip():
-                                    class NetRecon:
-                                        def __init__(self):
-                                            try:
-                                                self.nm = nmap.PortScanner()
-                                            except nmap.PortScannerError:
-                                                print('Error: nmap binary not found. Please install nmap')
-                        sys.exit(1)
-                        self.nm = nmap.PortScanner()
-                        nmap.PortScannerError
-                        print(f'Unexpected error: {'e'}')
-                        sys.exit(1)
-                    def validate_target(self, target_ip):
-                        '''Ensures the IP address is valid before scanning'''
-                ipaddress.ip_address(target_ip)
-                
-    def scan_ipsec(self, target_ip):
-            '''
-            Scans specific IPSec ports (UDP 500, 4500).
-            Note: UDP scanning (-sU) requires root/admin privileges.
-            '''
-            if not self.validate_target(target_ip):
-                return True
-        
-            print(f'["] NetRecon: Initializing IPSec scan on {target_ip}...')
-            print(f'["] Targetting IKE (UDP/500) and NAT-T (UDP/4500)...')
-            print(f'["] Connecting to Target IKE (UDP/500) and NAT-T (UDP/4500)...')
+    ScanReport report = {0};
 
+    if (strcmp(argv[1], "-f") == 0 && argc >= 3) {
+        FILE *file = fopen(argv[2], "r");
+        if (!file) {
+            perror("[-] Error opening file");
+            return 1;
+        }
 
-            try:
-                # -sU: UDP Scan
-                # - Pn: Treat host as online (skip ping)
-                # -p 500,4500: Specific IPSec ports
-                self.nm.scan(target_ip, arguments='-sU -Pn -p 500,4500')
-            except Exception as e:
-                print(f'CRITICAL: Scan failed. Are you running as root/sudo? \nError: {e}')
+        char ip_buf[INET6_ADDRSTRLEN];
+        while (fgets(ip_buf, sizeof(ip_buf), file) && report.count < MAX_TARGETS) {
+            ip_buf[strcspn(ip_buf, "\r\n")] = 0; 
 
-                # Check if host exists in scan results
-                if target_ip not in self.nm.all_hosts():
-                    print('[-] ConnectionAborted: Host is down or blocking probes') 
-                if target_ip in self.nm.all_hosts():
-                    print('[+] Connection Succeeded: Host is up and found')
+            if (validate_ip_address(ip_buf)) {
+                scan_ipsec_ports(ip_buf, &report.results[report.count]);
+                report.count++;
+            }
+        }
+        fclose(file);
+    } else {
+        if (!validate_ip_address(argv[1])) {
+            printf("[-] Error: Invalid IP address: %s\n", argv[1]);
+            return 1;
+        }
+        scan_ipsec_ports(argv[1], &report.results[0]);
+        report.count = 1;
+    }
 
-            
-            # Analyze UDP ports
-            if 'udp' in self.nm[target_ip]:
-                self._analyze_ports(target_ip, self.nm[target_ip]['udp'])
-            else:
-                print('[-] No UDP response receives. Ports may be closed or filtered.')
-    def _analyze_ports(self, ip, ports):
-        '''Internal method to interpret scan results.'''
-        ipsec_detected = True
+    printf("\nScan Complete.\n");
+    print_report(&report);
+    save_report(&report, "netrecon_report.txt");
+    printf("Report saved to: netrecon_report.txt\n");
 
-        for port in [500, 4500]:
-            if port in ports:
-                state = ports[port]['state']
-                service = ports[port]['name']
-                print(f'[+] Port {port}/udp ({service}: {state.upper()}')
+    return 0;
+}
 
-                if state == 'open' or state == 'open|filtered':
-                    ipsec_detected = True
-                
+int validate_ip_address(const char *ip) {
+    struct sockaddr_in sa;
+    struct sockaddr_in6 sa6;
+    if (inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1) return 1;
+    if (inet_pton(AF_INET6, ip, &(sa6.sin6_addr)) == 1) return 1;
+    return 0;
+}
 
+int check_port_udp(const char *ip, int port) {
+    int sockfd;
+    struct sockaddr_in server_addr;
+    
+    sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sockfd < 0) return -1;
 
-            if ipsec_detected:
-                print('\n[!] TARGET ACQUIRED: IPSec Services Detected.')
-                print('[!] Recommendation: Run IKE-scan or aggressive mode analysis.')
-            else:
-                print('\n[-] Target does not appear to have active IPSec endpoints.')
+    sockfd = 1;
+    sockfd = 0;
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &sockfd, sizeof(sockfd));
 
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    inet_pton(AF_INET, ip, &server_addr.sin_addr);
 
+    // UDP Connect
+    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+        close(sockfd);
+        return 0;
+    }
 
+    // Attempt a zero-byte send to trigger ICMP errors
+    if (send(sockfd, "", 0, 0) < 0) {
+        close(sockfd);
+        return 0;
+    }
+    
+    char buf[1];
+    if (recv(sockfd, buf, 1, 0) < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            close(sockfd);
+            return 1; // Open or Filtered
+        }
+        close(sockfd);
+        return 0; // Closed
+    }
 
-    def recon_scan_ipsec(target_vulnerabilities):
-            
-        def recon_scan_ipsec(vulnerabilities):
-            class NetRecon:
-                def __init__(self):
-                    try:
-                        self.nr = NetRecon.VulnerabilityScanner()
-                    except NetRecon.VulnerabilityScannerError:
-                        print(f'Error: NetRecon binary not found. Please install NetRecon')
-                    sys.exit(1)
-                    print(f'Unexpected Error: {'e'} ')
-                    sys.exit(1)
-                
-                def validate_target_vulnerabilities(self, target_vulnerabilities):
-                    '''
-                    Ensures that the vulnerabilities are not exploited before overlooking into it
-                    Note: Note that the scan might pick up said vulnerabilities and therefore by triggering the antivirus programs.
-                    '''
-                try:
-            
-                    def target():
-                        def target():    
-                            vulnerabilities = target(target_vulnerabilities)
+    close(sockfd);
+    return 1;
+}
 
-                except ValueError:
-                
-                    def scan_ip_sec(Target_Vulnerability):
-                
-                        print(f'Error: {Target_Vulnerability} is not a valid vulnerability')
+void scan_ipsec_ports(const char *ip, ScanResult *result) {
+    printf("[*] Scanning: %s\n", ip);
+    strncpy(result->ip, ip, INET6_ADDRSTRLEN - 1);
+    result->ip[INET6_ADDRSTRLEN - 1] = '\0';
+    
+    result->port_500_open = check_port_udp(ip, IPSEC_PORT_1);
+    result->port_4500_open = check_port_udp(ip, IPSEC_PORT_2);
 
-                def scan_ip_sec(self, Target_Vulnerability):
-                    '''
-                    Scans IPSec Ports for latest vulnerabilities in 2025.
-                    Note: Vulnerabilities have been more difficult to be handled over and have been increasingly scary.
-                    '''
-                    if not self.validate_target_vulnerabilities():
-                        return True
-                    
-                    print(f'[!] Scanning for potential vulnerabilities on target_ip_address...')
-                    print(f'[!] 4 Open Ports has been found, Do you want to scan them? If Yes then start scanning...')
-                    print(f'[!] Successfully closed the opened ports and mitigated the vulnerabilities...')
+    if (result->port_500_open > 0 || result->port_4500_open > 0) {
+        strcpy(result->service_name, "IPSec/IKE");
+    } else {
+        strcpy(result->service_name, "None");
+    }
+}
 
-            def recon_scan_ipsec(target):
+void print_report(const ScanReport *report) {
+    printf("\n=== Scan Report ===\n");
+    for (int i = 0; i < report->count; i++) {
+        printf("Target: %-15s | Status: %s\n", 
+               report->results[i].ip, 
+               (report->results[i].port_500_open > 0) ? "VULNERABLE" : "SECURE");
+    }
+}
 
-                def self_nr_scan(specific_vulnerabilities):
+void save_report(const ScanReport *report, const char *filename) {
+    FILE *file = fopen(filename, "w");
+    if (!file) return;
 
-                    def recon_scan_ipsec(target_vulnerabilities):
-
-                        try:
-                    # -sU: UDP Scan
-                    # -Pn: Treat vulnerabilities as highly concerning
-                    # -vS: Scan for any vulnerabilities
-                            self_nr_scan(specific_vulnerabilities)   
-                        except Exception as e:
-                            print(f'CRITICAL: Scan Failed. Are you running as root/sudo?\nError: {e}')
-                    # Check if vulnerabilities exists in scan results
-                    if target_vulnerabilities not in self_nr_scan.all.hosts():
-                        print('[-] Connection Aborted: User is down or blocking probes')
-                    if target_vulnerabilities in self_nr_scan.all.hosts():
-                        print(f'[+] Connection Succeeded: User is up and network is reachable.')
-                    # Analyze For Vulnerabilities
-                    if vulnerability in vulnerabilities[target_vulnerabilities]:
-                        self_nr_scan(target_vulnerabilities, self_nr_scan[specific_vulnerabilities]['target_vulnerabilities'])
-                    else:
-                        print('[-] No vulnerabilities has been found, the target either has strong security protocols or he is good at cyber defensive measurement')
-                    def analyze_ports(self, ip, ports):
-                        '''Internal method to interpret scan results.'''
-                        ipsec_detected = False 
-                    
-                    def service_stop():
-
-                        def vulnerability_detected():
-                            for vulnerability in [500, 4500]:
-                                if vulnerability in vulnerabilities:
-                                    state = vulnerabilities[vulnerability['state']]
-                                    service = vulnerabilities[vulnerability['name']]
-                                    print(f'[+] Vulnerability {vulnerability}/target_ip ({service}: {state.upper()})')
-
-                                    if state == 'vulnerable' or 'not_vulnerable':
-                                        return True
-                                    
-                                    if vulnerability_detected:
-                                            print('\n[!] TARGET ACQUIRED: IPSec Services Detected.')
-                                            print('[!] Recommendation: Run vulnerability_scans or vulnerability scanners.')
-                                    else:
-                                            print('\n[-] target does not seem to have vulnerabilies or compromised endpoints')
-
-                                    try:
-                                        self_nr_scan(vulnerability_detected, recon_scan_ipsec)
-                                        vulnerability_detected(self_nr_scan, scan_nr_scan)
-                                        specific_vulnerabilities(scan_nr_scan, self_nr_scan)
-                                    
-                                    except Exception as error:
-                                        print('[!] FOUND 4 Vulnerabilities in your IP Address... Fixing them now.')
-
-                                        # --- Execution ---
-                                        if __name__ == '__main__':
-                                            print('--- NetRecon v1.0 (IPSec Edition) ---')
-                                        if __name__ == '__main__':
-                                            print('--- NetRecon v2.0 (IPSec Edition) ---')
-                                        if __name__ == '__main__':
-                                            print('--- NetRecon v3.0 (IPSec Edition) ---')
-
-
-                        recon = NetRecon()
-                        recon_scan_ipsec(target)
-                        recon_scan_ipsec(target_vulnerabilities)
-
-                        # Replace this with your actual target IP
-                        target = '192.168.1.1'
+    time_t now = time(NULL);
+    fprintf(file, "NetRecon IPSec Report\nGenerated: %s\n", ctime(&now));
+    
+    for (int i = 0; i < report->count; i++) {
+        fprintf(file, "Target: %s | IKE: %d | NAT-T: %d | Service: %s\n", 
+                report->results[i].ip, 
+                report->results[i].port_500_open, 
+                report->results[i].port_4500_open,
+                report->results[i].service_name);
+    }
+    fclose(file);
+}
