@@ -1,0 +1,4 @@
+NetRecon IPSec Report
+Generated: 2025-12-31 13:08:27
+
+Target: 192.168.1.10 | IKE(500): Open/Filtered | NAT-T(4500): Open/Filtered | Service: Possible IPSec/IKE
